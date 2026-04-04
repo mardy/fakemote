@@ -523,21 +523,27 @@ static int patch_conf_bt_dinf(u8 conf_buffer[static CONF_SIZE])
 
     /* Get paired Wiimote configuration */
     ret = conf_get(conf_buffer, "BT.DINF", &conf_pads, sizeof(conf_pads));
-    LOG_DEBUG("conf_get(): %d\n", ret);
+    LOG_INFO("conf_get(): %d\n", ret);
     if (ret != sizeof(conf_pads))
         return IOS_EINVAL;
-    LOG_DEBUG("  num_registered: %d\n", conf_pads.num_registered);
+    LOG_INFO("  num_registered: %d\n", conf_pads.num_registered);
 
     /* Check how many "Fake Wiimotes" are paired */
     paired_count = 0;
     for (int i = 0; i < conf_pads.num_registered; i++) {
-        LOG_DEBUG("  registered[%d]: \"%s\"\n", i, conf_pads.registered[i].name);
         /* Check if the bdaddr matches */
         baswap(&bdaddr, &conf_pads.registered[i].bdaddr);
+        LOG_INFO("  registered[%d]: \"%02x:%02x:%02x:%02x:%02x:%02x\"\n", i,
+                 bdaddr.b[0],
+                 bdaddr.b[1],
+                 bdaddr.b[2],
+                 bdaddr.b[3],
+                 bdaddr.b[4],
+                 bdaddr.b[5]);
         if (bacmp(&bdaddr, &FAKE_WIIMOTE_BDADDR(paired_count)) == 0)
             paired_count++;
     }
-    LOG_DEBUG("Found %d paired \"Fake Wiimotes\"\n", paired_count);
+    LOG_INFO("Found %d paired \"Fake Wiimotes\"\n", paired_count);
 
     /* Give at least the last two entries (out of 10) for fake Wiimotes */
     if (paired_count >= 2)
@@ -552,14 +558,23 @@ static int patch_conf_bt_dinf(u8 conf_buffer[static CONF_SIZE])
          *   Wii memcmps the name with "Nintendo RVL-CNT-01" and size 19 */
         snprintf(conf_pads.registered[start + i].name, sizeof(conf_pads.registered[start + i].name),
                  "Nintendo RVL-CNT-01 (Fake Wiimote %d)", i);
+        LOG_INFO("  added [%d]: \"%02x:%02x:%02x:%02x:%02x:%02x\"\n", start + i,
+                 conf_pads.registered[start + i].bdaddr.b[0],
+                 conf_pads.registered[start + i].bdaddr.b[1],
+                 conf_pads.registered[start + i].bdaddr.b[2],
+                 conf_pads.registered[start + i].bdaddr.b[3],
+                 conf_pads.registered[start + i].bdaddr.b[4],
+                 conf_pads.registered[start + i].bdaddr.b[5]);
     }
     conf_pads.num_registered = start + count;
 
     /* Write new paired Wiimote configuration back to the buffer */
-    conf_set(conf_buffer, "BT.DINF", &conf_pads, sizeof(conf_pads));
+    ret = conf_set(conf_buffer, "BT.DINF", &conf_pads, sizeof(conf_pads));
+    LOG_INFO("conf_set(): %d\n", ret);
 
     /* Write updated SYSCONF back */
     ret = write_conf(conf_buffer);
+    LOG_INFO("write_conf(): %d\n", ret);
     if (ret != CONF_SIZE)
         return IOS_EINVAL;
 
@@ -572,7 +587,7 @@ int main(void)
     int ret;
 
     /* Print info */
-    LOG_DEBUG("$IOSVersion: FAKEMOTE:  " __DATE__ " " __TIME__
+    LOG_INFO("$IOSVersion: FAKEMOTE:  " __DATE__ " " __TIME__
               " 64M " TOSTRING(FAKEMOTE_MAJOR) "." TOSTRING(FAKEMOTE_MINOR) "." TOSTRING(
                   FAKEMOTE_PATCH) "-" TOSTRING(FAKEMOTE_HASH) " $\n");
 

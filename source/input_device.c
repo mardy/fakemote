@@ -189,6 +189,7 @@ void input_device_assign_wiimote(input_device_t *input_device, fake_wiimote_t *w
 
 void input_device_release_wiimote(input_device_t *input_device)
 {
+    LOG_INFO("%s\n", __func__);
     input_device->assigned_wiimote = NULL;
     input_device->reconnect_delay = RECONNECT_DELAY;
     egc_input_device_suspend(input_device->device);
@@ -201,6 +202,7 @@ int input_device_resume(input_device_t *input_device)
 
 int input_device_suspend(input_device_t *input_device)
 {
+    LOG_INFO("%s\n", __func__);
     return egc_input_device_suspend(input_device->device);
 }
 
@@ -250,9 +252,12 @@ bool input_device_report_input(input_device_t *input_device)
     }
 
     if (input_device->device->desc->num_accelerometers > 0) {
-        fake_wiimote_report_accelerometer(wiimote, input->gamepad.accelerometer[0].x,
-                                          input->gamepad.accelerometer[0].y,
-                                          input->gamepad.accelerometer[0].z);
+        /* Transform the values so that the neutral position (0) is 500 and
+         * EGC_ACCELEROMETER_RES_PER_G maps to 600 */
+        int x = input->gamepad.accelerometer[0].x * 100 / EGC_ACCELEROMETER_RES_PER_G + 500;
+        int y = input->gamepad.accelerometer[0].y * 100 / EGC_ACCELEROMETER_RES_PER_G + 500;
+        int z = input->gamepad.accelerometer[0].z * 100 / EGC_ACCELEROMETER_RES_PER_G + 500;
+        fake_wiimote_report_accelerometer(wiimote, x, y, z);
     }
 
     ir_emu_mode = ir_emu_modes[input_device->ir_emu_mode_idx];
