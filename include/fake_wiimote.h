@@ -3,6 +3,7 @@
 
 #include "hci.h"
 #include "input_device.h"
+#include "logging.h"
 #include "types.h"
 #include "wiimote.h"
 #include "wiimote_crypto.h"

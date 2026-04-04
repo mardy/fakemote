@@ -6,6 +6,8 @@
 #include "utils.h"
 #include "wiimote.h"
 
+#include <limits.h>
+
 #define MAX_INPUT_DEVS  2
 #define RECONNECT_DELAY 200 /* 1s @ 200Hz */
 

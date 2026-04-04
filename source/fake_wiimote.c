@@ -1,3 +1,5 @@
+#include <inttypes.h>
+
 #include "button_map.h"
 #include "fake_wiimote.h"
 #include "hci.h"

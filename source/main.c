@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <inttypes.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -571,7 +572,7 @@ int main(void)
     int ret;
 
     /* Print info */
-    svc_write("$IOSVersion: FAKEMOTE:  " __DATE__ " " __TIME__
+    LOG_DEBUG("$IOSVersion: FAKEMOTE:  " __DATE__ " " __TIME__
               " 64M " TOSTRING(FAKEMOTE_MAJOR) "." TOSTRING(FAKEMOTE_MINOR) "." TOSTRING(
                   FAKEMOTE_PATCH) "-" TOSTRING(FAKEMOTE_HASH) " $\n");
 

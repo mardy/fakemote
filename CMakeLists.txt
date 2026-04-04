@@ -30,6 +30,7 @@ add_compile_options(
     -ffunction-sections
     -Wall
     -fno-builtin
+    -DEGC_LOG=printf
 )
 
 add_executable(fakemote
